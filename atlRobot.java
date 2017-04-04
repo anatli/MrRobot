@@ -1,5 +1,6 @@
 package atl;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import robocode.Robot;
@@ -13,7 +14,7 @@ public class atlRobot extends Robot {
 	public static celda meta;
 	
 	public void run(){
-		int path[]=findPath();
+		celda path[]=findPath();
 		celdas();
 		turnLeft (getHeading() %90);
 		turnGunRight(90);
@@ -116,13 +117,78 @@ public class atlRobot extends Robot {
 	}
 	
 	//camino A*
-	private int[] findPath(){
+	private celda[] findPath(){
 		stablishPositions();
-		 int closedSet[]=new int[100];
-		 int openSet[]=new int[100];
-		 
+		 celda closedSet[];
+		 celda openSet[];
+		 celda current;
+		 openSet[0]=inicio;
+		 celda neighbours[];
+		 while(openSet[0]!=null){
+			 current=openSet[0];
+			 int i=0;
+			 while(openSet[i]!=null){
+				 if(current.f<openSet[i].f){
+					 current=openSet[i];
+				 }
+				 if(current==meta){
+					 return res;
+				 }
+				 i++;
+			 }
+			 openSet=remove(openSet,current);
+			 celda[] closedSet2 = new celda[closedSet.length + 1];
+			System.arraycopy(closedSet, 0, closedSet2, 0, closedSet.length);
+			closedSet2[closedSet.length] = current;
+			
+			neighbours=neighbours(current.row,current.col);
+			for(int aux=0;aux<4;aux++){
+				if(neighbours[aux]!=null){
+					
+					if(!isInArray(closedSet,neighbours[aux])){
+						int tentative_g=neighbours[aux].g+1;
+						if(!isInArray(openSet,neighbours[aux]) || tentative_g<neighbours[aux].g){
+							//falta parent[neigh]=current
+							neighbours[aux].g(tentative_g);
+							neighbours[aux].f(neighbours[aux].g+neighbours[aux].h);
+							if(!isInArray(openSet,neighbours[aux])){
+								celda[] openSet2 = new celda[openSet2.length + 1];
+								System.arraycopy(openSet2, 0, openSet2, 0, openSet2.length);
+								openSet2[openSet2.length] = neighbours[aux];
+							}
+						}
+					}	
+					
+				}
+			}
+			 
+		 }
 
 		return null;
+	}
+	private boolean isInArray(celda[] array,celda elem){
+		boolean res=false;
+		int i=0;
+		while(i<array.length && !res){
+			if(array[i].col==elem.col && array[i].row==elem.row){
+				res=true;
+			}
+			++i;
+		}
+		return res;
+	}
+	public celda[] remove(celda[] set, celda current){
+		boolean found=false;
+		int i=0;
+		while(!found){
+			if(set[i].row==current.row && set[i].col==current.col){
+				found=true;
+			}
+			++i;
+		}for(int j=i-1;j<set.length-1;++j){
+			set[j]=set[j+1];
+		}
+		return set;
 	}
 	
 }
