@@ -1,8 +1,7 @@
 package atl;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+
 import robocode.Robot;
 import robocode.ScannedRobotEvent;
 import robocode.control.RobotSetup;
@@ -14,7 +13,7 @@ public class atlRobot extends Robot {
 	public static celda meta;
 	
 	public void run(){
-		celda path[]=findPath();
+		List<celda> path=findPath();
 		celdas();
 		turnLeft (getHeading() %90);
 		turnGunRight(90);
@@ -57,7 +56,7 @@ public class atlRobot extends Robot {
 		return MyMatrix;
 	}
 	//posicion de inicio del tanque y posicion final a la que queremos llegar con él.
-	public void stablishPositions(){
+	public void establishPositions(){
 		Random rnd = new Random();
 		 rnd.setSeed(29);
 		 boolean [][] MyMatrix = new boolean [10][10] ;
@@ -85,9 +84,11 @@ public class atlRobot extends Robot {
 		meta=new celda(tanqueX,tanqueY);
 	}
 	//array de celdas adyacentes libres 
-	celda[] neighbours(int i,int j){
+	celda[] neighbours(celda node){
 		celda res[]=new celda[4];
 		int num=0;
+		int i=node.row;
+		int j=node.col;
 		
 		if(i!=0){
 			if(!Matrix[i-1][j]){
@@ -117,45 +118,32 @@ public class atlRobot extends Robot {
 	}
 	
 	//camino A*
-	private celda[] findPath(){
-		stablishPositions();
-		 celda closedSet[];
-		 celda openSet[];
+	private List<celda> findPath(){
+		//establishPositions();
+		
+		 List<celda> closedSet=new LinkedList<celda>();//Nodes already evaluated
+		 List<celda> openSet=new LinkedList<celda>();//Tentative nodes to be evaluated
+		 openSet.add(inicio);
 		 celda current;
-		 openSet[0]=inicio;
-		 celda neighbours[];
-		 while(openSet[0]!=null){
-			 current=openSet[0];
-			 int i=0;
-			 while(openSet[i]!=null){
-				 if(current.f<openSet[i].f){
-					 current=openSet[i];
-				 }
-				 if(current==meta){
-					 return res;
-				 }
-				 i++;
+		 while(!openSet.isEmpty()){
+			 current=lowestF(openSet);
+			 if(current.equals(meta)){
+				 return pathFromStart(current);
 			 }
-			 openSet=remove(openSet,current);
-			 celda[] closedSet2 = new celda[closedSet.length + 1];
-			System.arraycopy(closedSet, 0, closedSet2, 0, closedSet.length);
-			closedSet2[closedSet.length] = current;
+			 openSet.remove(current);
+			 closedSet.add(current);
+			celda[] neigh=neighbours(current);
 			
-			neighbours=neighbours(current.row,current.col);
 			for(int aux=0;aux<4;aux++){
-				if(neighbours[aux]!=null){
-					
-					if(!isInArray(closedSet,neighbours[aux])){
-						int tentative_g=neighbours[aux].g+1;
-						if(!isInArray(openSet,neighbours[aux]) || tentative_g<neighbours[aux].g){
+				if(neigh[aux]!=null){	
+					if(!closedSet.contains(neigh[aux])){
+						int tentative_g=neigh[aux].g+1;
+						if(!openSet.contains(neigh[aux]) || tentative_g<neigh[aux].g){
 							//falta parent[neigh]=current
-							neighbours[aux].g(tentative_g);
-							neighbours[aux].f(neighbours[aux].g+neighbours[aux].h);
-							if(!isInArray(openSet,neighbours[aux])){
-								celda[] openSet2 = new celda[openSet2.length + 1];
-								System.arraycopy(openSet2, 0, openSet2, 0, openSet2.length);
-								openSet2[openSet2.length] = neighbours[aux];
-							}
+							neigh[aux].cameFrom=current;
+							neigh[aux].g(tentative_g);
+							neigh[aux].f(neigh[aux].g+neigh[aux].h);
+							if(!openSet.contains(neigh[aux]))openSet.add(neigh[aux]);
 						}
 					}	
 					
@@ -166,29 +154,25 @@ public class atlRobot extends Robot {
 
 		return null;
 	}
-	private boolean isInArray(celda[] array,celda elem){
-		boolean res=false;
-		int i=0;
-		while(i<array.length && !res){
-			if(array[i].col==elem.col && array[i].row==elem.row){
-				res=true;
+	private celda lowestF(List<celda> list){
+		celda res=list.get(0);
+		for(int i=1;i<list.size();++i){
+			if(list.get(i).f<res.f){
+				res=list.get(i);
 			}
-			++i;
 		}
 		return res;
 	}
-	public celda[] remove(celda[] set, celda current){
-		boolean found=false;
-		int i=0;
-		while(!found){
-			if(set[i].row==current.row && set[i].col==current.col){
-				found=true;
-			}
-			++i;
-		}for(int j=i-1;j<set.length-1;++j){
-			set[j]=set[j+1];
-		}
-		return set;
+	private List<celda> pathFromStart(celda finall){
+		List<celda> res=new LinkedList<celda>();
+		if(finall.equals(inicio)){
+			res.add(inicio);
+			return res;
+		}else{
+			res=(pathFromStart(finall.cameFrom));
+			res.add(finall);
+			return res;
+		}	
 	}
 	
 }
