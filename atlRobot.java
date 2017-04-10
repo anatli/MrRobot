@@ -18,11 +18,31 @@ public class atlRobot extends Robot {
 		celdas();
 		List<celda> path=new LinkedList<celda>();
 		path=findPath();
-		turnLeft (getHeading() %90);
-		turnGunRight(90);
-		while(true){
-			ahead(100000);
-			turnRight(90);
+		Iterator<celda> it= path.iterator();
+		celda prev,current;
+		prev=it.next();
+		while(it.hasNext()){
+			current=it.next();
+			movements(prev,current);
+			prev=current;
+//			System.out.println("ole");
+//			System.out.print("( "+aux.row+" , "+aux.col+"..."+aux.f+" )");
+		}
+		
+	}
+	public void movements(celda prev,celda current){
+		if(current.row==prev.row+1){
+			turnRight(90-getHeading());
+			ahead(64);
+		}else if(current.row==prev.row-1){
+			turnRight((getHeading()-90)%180);
+			ahead(64);
+		}else if(current.col==prev.col+1){
+			turnRight((getHeading()-180)%180);
+			ahead(64);
+		}else{
+			turnLeft(getHeading()-180);
+			ahead(64);
 		}
 	}
 	//creamos matriz celdas que guarda las posiciones e inicializa los valores de f y g a 0 y de h 
