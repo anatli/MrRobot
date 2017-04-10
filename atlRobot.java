@@ -1,20 +1,23 @@
 package atl;
 
 import java.util.*;
-
 import robocode.Robot;
 import robocode.ScannedRobotEvent;
 import robocode.control.RobotSetup;
 
 public class atlRobot extends Robot {
-	public final boolean[][] Matrix=matrix();
-	public celda[][] MatrixCeldas;
+	public static final Random rnd = new Random();
+	
+	public boolean[][] Matrix=new boolean[10][10];
+	public celda[][] MatrixCeldas=new celda[10][10];
 	public static celda inicio;
 	public static celda meta;
 	
 	public void run(){
-		List<celda> path=findPath();
+		Matrix=matrix();
 		celdas();
+		List<celda> path=new LinkedList<celda>();
+		path=findPath();
 		turnLeft (getHeading() %90);
 		turnGunRight(90);
 		while(true){
@@ -53,36 +56,30 @@ public class atlRobot extends Robot {
 					numTanks++;
 				}
 			}
+		 //posicion de inicio del tanque y posicion final a la que queremos llegar con él.
+		 boolean ok=true;
+			int row = 0,col = 0;
+			while(ok){
+				row=rnd.nextInt(10);
+				col=rnd.nextInt(10);
+				if(MyMatrix[row][col]==false){
+					ok=false;
+				}
+			}
+			inicio=new celda(row,col);
+			ok=true;
+			while(ok){
+				row=rnd.nextInt(10);
+				col=rnd.nextInt(10);
+				if(MyMatrix[row][col]==false){
+					ok=false;
+				}
+			}
+			meta=new celda(row,col);
 		return MyMatrix;
 	}
-	//posicion de inicio del tanque y posicion final a la que queremos llegar con él.
-	public void establishPositions(){
-		Random rnd = new Random();
-		 rnd.setSeed(29);
-		 boolean [][] MyMatrix = new boolean [10][10] ;
-		 int tanqueX = 0;
-		 int tanqueY = 0;
-		 //Obtenemos posición inicial del tanque atl
-		 boolean ok=true;
-			while(ok){
-				tanqueX=rnd.nextInt(10);
-				tanqueY=rnd.nextInt(10);
-				if(MyMatrix[tanqueX][tanqueY]==false){
-					MyMatrix[tanqueX][tanqueY]=true;
-					ok=false;
-				}
-			}
-		inicio=new celda(tanqueX, tanqueY);
-		ok=true;
-			while(ok){
-				tanqueX=rnd.nextInt(10);
-				tanqueY=rnd.nextInt(10);
-				if(MyMatrix[tanqueX][tanqueY]==false){
-					ok=false;
-				}
-			}
-		meta=new celda(tanqueX,tanqueY);
-	}
+	
+	
 	//array de celdas adyacentes libres 
 	celda[] neighbours(celda node){
 		celda res[]=new celda[4];
