@@ -21,17 +21,11 @@ public class celda{
 		g=0;
 		h=0;
 	}
-	public void incrementG(){
-		g++;
-	}
 	public void f(int n){
 		f=n;
 	}
 	public void g(int n){
 		g=n;
-	}
-	public void h(int n){
-		h=n;
 	}
 	@Override
 	public int hashCode() {
