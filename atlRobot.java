@@ -7,6 +7,7 @@ import robocode.control.RobotSetup;
 
 public class atlRobot extends Robot {
 	public static final Random rnd = new Random();
+	public static final Random rnd2 = new Random();
 	
 	public boolean[][] Matrix=new boolean[10][10];
 	public celda[][] MatrixCeldas=new celda[10][10];
@@ -53,6 +54,7 @@ public class atlRobot extends Robot {
 				if(Matrix[i][j]){
 					MatrixCeldas[i][j]=null;
 				}else{
+					//Manhattan distance
 					int h=Math.abs(i-meta.row)+Math.abs(j-meta.col);
 					MatrixCeldas[i][j]=new celda(i,j,0,0,h);
 				}
@@ -62,7 +64,6 @@ public class atlRobot extends Robot {
 	
 	//matriz con posicion de tanques
 	private boolean[][] matrix(){
-		 Random rnd = new Random();
 		 rnd.setSeed(29);
 		 boolean [][] MyMatrix = new boolean [10][10] ;
 		 int numTanks = 0;
@@ -79,23 +80,25 @@ public class atlRobot extends Robot {
 		 //posicion de inicio del tanque y posicion final a la que queremos llegar con él.
 		 boolean ok=true;
 			int row = 0,col = 0;
-			while(ok){
-				row=rnd.nextInt(10);
-				col=rnd.nextInt(10);
-				if(MyMatrix[row][col]==false){
-					ok=false;
-				}
-			}
+			row=(int) ((this.getX()- 32)/64);
+			col=(int) ((this.getY()- 32)/64);
+//			while(ok){
+//				row=rnd.nextInt(10);
+//				col=rnd.nextInt(10);
+//				if(MyMatrix[row][col]==false){
+//					ok=false;
+//				}
+//			}
 			inicio=new celda(row,col);
 			ok=true;
 			while(ok){
-				row=rnd.nextInt(10);
-				col=rnd.nextInt(10);
+				row=rnd2.nextInt(10);
+				col=rnd2.nextInt(10);
 				if(MyMatrix[row][col]==false){
 					ok=false;
 				}
 			}
-			meta=new celda(row,col);
+			meta=new celda(8,9);
 		return MyMatrix;
 	}
 	
@@ -154,7 +157,7 @@ public class atlRobot extends Robot {
 			for(int aux=0;aux<4;aux++){
 				if(neigh[aux]!=null){	
 					if(!closedSet.contains(neigh[aux])){
-						int tentative_g=neigh[aux].g+1;
+						int tentative_g=current.g+1;
 						if(!openSet.contains(neigh[aux]) || tentative_g<neigh[aux].g){
 							//falta parent[neigh]=current
 							neigh[aux].cameFrom=current;
@@ -191,5 +194,4 @@ public class atlRobot extends Robot {
 			return res;
 		}	
 	}
-	
 }

@@ -12,6 +12,7 @@ public class run {
  {
 	 final int NumObstacles = 30;
 	 Random rnd = new Random();
+	 Random rnd2 = new Random();
 	 rnd.setSeed(29);
 	 boolean [][] MyMatrix = new boolean [10][10] ;
 	 int numTanks = 0;
@@ -57,15 +58,25 @@ public class run {
 				numTanks++;
 			}
 		}
-	 
+		//posicion del tanque protagonista
+		boolean ok=true;
+		int row = 0,col = 0;
+		while(ok){
+			row=rnd2.nextInt(10);
+			col=rnd2.nextInt(10);
+			if(MyMatrix[row][col]==false){
+				ok=false;
+			}
+		}
+		System.out.println("inicio: "+row+" , "+ col);
 
  /*
  * Create the agent and place it in a random position without obstacle
  */
  existingRobots[NumObstacles]=modelRobots[1]; 
  
- 		 double InitialAgentRow=31; 
-		 double InitialAgentCol=31;
+ 		 double InitialAgentRow=row*64+32; 
+		 double InitialAgentCol=col*64+32;
 		 robotSetups[NumObstacles]=new RobotSetup(InitialAgentRow,InitialAgentCol,0.0);
 		 /* Create and run the battle */
 		 BattleSpecification battleSpec =
@@ -78,7 +89,9 @@ public class run {
 		 existingRobots,
 		 robotSetups);
 		 // Run our specified battle and let it run till it is over
+		 
 		 engine.runBattle(battleSpec, true); // waits till the battle finishes
+		 System.out.println("final: "+(robotSetups[30].getX()-32)/64+" , "+(robotSetups[30].getY()-32)/64);
 		 // Cleanup our RobocodeEngine
 		 engine.close();
 		 // Make sure that the Java VM is shut down properly
